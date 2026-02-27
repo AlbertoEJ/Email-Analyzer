@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Google credentials
+client_secret*.json
+
+# Build output
+dist/
+build/
+
+# Database
+backend/prisma/*.db
+backend/prisma/*.db-journal
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+
+# Temp
+tmp/
+temp/
+
+# Generated reports
+email-security-report*.json

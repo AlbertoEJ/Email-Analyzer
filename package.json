@@ -1,0 +1,21 @@
+{
+  "name": "email-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gmail Email Security Analyzer - Thesis Project",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
+    "db:migrate": "npm run db:migrate --workspace=backend",
+    "db:generate": "npm run db:generate --workspace=backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                String          @id @default(uuid())
+  email             String          @unique
+  name              String?
+  picture           String?
+  encryptedAccessToken  String?
+  encryptedRefreshToken String?
+  tokenExpiresAt    DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  emailAnalyses     EmailAnalysis[]
+  scanLogs          ScanLog[]
+}
+
+model EmailAnalysis {
+  id                String   @id @default(uuid())
+  gmailId           String
+  userId            String
+  subject           String
+  sender            String
+  senderEmail       String
+  recipients        String   // JSON array
+  date              DateTime
+  snippet           String?
+  bodyText          String?
+  bodyHtml          String?
+
+  // Analysis results
+  headerScore       Float    @default(0)
+  headerDetails     String?  // JSON
+  urlScore          Float    @default(0)
+  urlDetails        String?  // JSON
+  contentScore      Float    @default(0)
+  contentDetails    String?  // JSON
+  attachmentScore   Float    @default(0)
+  attachmentDetails String?  // JSON
+
+  // Composite score
+  threatScore       Float    @default(0)
+  threatLevel       String   @default("safe") // safe, low, medium, high, critical
+  threatSummary     String?
+
+  analyzedAt        DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id])
+
+  @@unique([gmailId, userId])
+  @@index([userId])
+  @@index([threatLevel])
+  @@index([date])
+}
+
+model ScanLog {
+  id            String   @id @default(uuid())
+  userId        String
+  type          String   // manual, scheduled
+  emailsScanned Int      @default(0)
+  threatsFound  Int      @default(0)
+  status        String   @default("running") // running, completed, failed
+  error         String?
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
