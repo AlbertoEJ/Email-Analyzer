@@ -1,5 +1,7 @@
 # Email Security Analyzer
 
+[Leer en Español](README.es.md)
+
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?logo=tailwindcss&logoColor=white)
@@ -7,125 +9,125 @@
 ![Prisma](https://img.shields.io/badge/Prisma-SQLite-2D3748?logo=prisma&logoColor=white)
 ![Gmail API](https://img.shields.io/badge/Gmail_API-v1-EA4335?logo=gmail&logoColor=white)
 
-Aplicacion full-stack para el analisis de seguridad de correos electronicos via Gmail. Utiliza multiples motores de analisis (headers, URLs, contenido con LLM, archivos adjuntos) para detectar phishing, ingenieria social y otras amenazas.
+A full-stack application for email security analysis via Gmail. It uses multiple analysis engines (headers, URLs, LLM-powered content, attachments) to detect phishing, social engineering, and other threats.
 
-Proyecto de tesis - Universidad
+Thesis project - University
 
-## Arquitectura
+## Architecture
 
 ```
 email-analyzer/
-├── backend/          # API REST (Express + Prisma + SQLite)
+├── backend/          # REST API (Express + Prisma + SQLite)
 │   ├── src/
-│   │   ├── config/         # Variables de entorno, base de datos
+│   │   ├── config/         # Environment variables, database
 │   │   ├── controllers/    # Endpoints (emails, dashboard, reports, auth)
 │   │   ├── middleware/     # Auth, error handling, rate limiting
-│   │   ├── routes/         # Definicion de rutas
-│   │   ├── services/       # Logica de negocio
-│   │   │   ├── analyzer.service.ts           # Orquestador principal
+│   │   ├── routes/         # Route definitions
+│   │   ├── services/       # Business logic
+│   │   │   ├── analyzer.service.ts           # Main orchestrator
 │   │   │   ├── header-analyzer.service.ts    # SPF/DKIM/DMARC
 │   │   │   ├── url-analyzer.service.ts       # Safe Browsing + VirusTotal
 │   │   │   ├── content-analyzer.service.ts   # LLM via OpenRouter
-│   │   │   ├── attachment-analyzer.service.ts # Analisis de adjuntos
-│   │   │   ├── threat-scorer.service.ts      # Score compuesto
-│   │   │   ├── scan-progress.service.ts      # Progreso en tiempo real
+│   │   │   ├── attachment-analyzer.service.ts # Attachment analysis
+│   │   │   ├── threat-scorer.service.ts      # Composite scoring
+│   │   │   ├── scan-progress.service.ts      # Real-time progress
 │   │   │   ├── gmail.service.ts              # Gmail API client
-│   │   │   └── scheduler.service.ts          # Escaneos automaticos (cron)
-│   │   └── utils/          # Parser de emails, logger
-│   └── prisma/             # Schema y migraciones
+│   │   │   └── scheduler.service.ts          # Automated scans (cron)
+│   │   └── utils/          # Email parser, logger
+│   └── prisma/             # Schema and migrations
 └── frontend/         # SPA (React + Vite + Tailwind)
     └── src/
-        ├── api/            # Cliente HTTP (Axios)
-        ├── components/     # Componentes UI
+        ├── api/            # HTTP client (Axios)
+        ├── components/     # UI components
         │   ├── layout/     # Sidebar, Header (responsive)
-        │   ├── dashboard/  # Cards, graficos (Recharts)
-        │   ├── emails/     # Lista, detalle, filtros, progreso
-        │   └── analysis/   # Vistas de cada tipo de analisis
+        │   ├── dashboard/  # Cards, charts (Recharts)
+        │   ├── emails/     # List, detail, filters, progress
+        │   └── analysis/   # Analysis type views
         ├── hooks/          # React Query hooks
-        ├── pages/          # Paginas principales
+        ├── pages/          # Main pages
         └── context/        # AuthContext (Google OAuth)
 ```
 
-## Funcionalidades
+## Features
 
-### Analisis de seguridad multi-capa
-- **Headers (SPF/DKIM/DMARC)** - Validacion de autenticacion del remitente
-- **URLs** - Verificacion contra Google Safe Browsing y VirusTotal
-- **Contenido (LLM)** - Deteccion de phishing e ingenieria social con IA
-- **Adjuntos** - Analisis de tipos sospechosos y hashes con VirusTotal
+### Multi-layer security analysis
+- **Headers (SPF/DKIM/DMARC)** — Sender authentication validation
+- **URLs** — Verification against Google Safe Browsing and VirusTotal
+- **Content (LLM)** — AI-powered phishing and social engineering detection
+- **Attachments** — Suspicious file type and hash analysis via VirusTotal
 
-### Score de amenaza compuesto
-Cada email recibe un score de 0-100 basado en pesos ponderados:
-| Componente | Peso |
-|------------|------|
-| Headers    | 20%  |
-| URLs       | 30%  |
-| Contenido  | 30%  |
-| Adjuntos   | 20%  |
+### Composite threat score
+Each email receives a score from 0 to 100 based on weighted components:
+| Component   | Weight |
+|-------------|--------|
+| Headers     | 20%    |
+| URLs        | 30%    |
+| Content     | 30%    |
+| Attachments | 20%    |
 
-Niveles: `safe` (0-15) | `low` (16-35) | `medium` (36-55) | `high` (56-75) | `critical` (76-100)
+Levels: `safe` (0-15) | `low` (16-35) | `medium` (36-55) | `high` (56-75) | `critical` (76-100)
 
-### Escaneo con progreso en tiempo real
-- El scan se ejecuta en background (no bloquea la UI)
-- Polling cada 1s muestra: barra de progreso, email actual, reintentos, amenazas encontradas
-- Retry automatico con exponential backoff para errores 429/502/503
+### Real-time scan progress
+- Scans run in the background (non-blocking UI)
+- Polling every 1s shows: progress bar, current email, retry attempts, threats found
+- Automatic retry with exponential backoff for 429/502/503 errors
 
-### Dashboard interactivo
-- Cards de resumen (total emails, amenazas, score promedio, ultimo scan)
-- Grafico de tendencias de amenazas (30 dias)
-- Distribucion por nivel de amenaza (pie chart)
+### Interactive dashboard
+- Summary cards (total emails, threats, average score, last scan)
+- Threat trend chart (30 days)
+- Threat level distribution (pie chart)
 
-### UI responsive
-- Desktop: sidebar fija + tabla de emails
-- Mobile: hamburger menu + tarjetas de emails
+### Responsive UI
+- Desktop: fixed sidebar + email table
+- Mobile: hamburger menu + email cards
 
-### Otras funcionalidades
-- Autenticacion via Google OAuth 2.0
-- Escaneos automaticos programados (cron configurable)
-- Exportacion de reportes JSON
-- Filtrado y busqueda de emails
-- Paginacion
+### Other features
+- Google OAuth 2.0 authentication
+- Scheduled automatic scans (configurable cron)
+- JSON report export
+- Email filtering and search
+- Pagination
 
-## Requisitos previos
+## Prerequisites
 
 - **Node.js** >= 18
 - **npm** >= 9
-- Cuenta de Google Cloud con Gmail API habilitada
-- Credenciales OAuth 2.0 configuradas
+- Google Cloud account with Gmail API enabled
+- OAuth 2.0 credentials configured
 
-### API Keys (opcionales pero recomendadas)
-| Servicio | Para que |
-|----------|----------|
-| [Google Safe Browsing](https://developers.google.com/safe-browsing) | Verificacion de URLs maliciosas |
-| [VirusTotal](https://www.virustotal.com/gui/my-apikey) | Analisis de URLs y hashes de adjuntos |
-| [OpenRouter](https://openrouter.ai/keys) | Analisis de contenido con LLM |
+### API Keys (optional but recommended)
+| Service | Purpose |
+|---------|---------|
+| [Google Safe Browsing](https://developers.google.com/safe-browsing) | Malicious URL verification |
+| [VirusTotal](https://www.virustotal.com/gui/my-apikey) | URL and attachment hash analysis |
+| [OpenRouter](https://openrouter.ai/keys) | LLM-powered content analysis |
 
-## Instalacion
+## Installation
 
 ```bash
-# Clonar repositorio
-git clone https://github.com/<tu-usuario>/email-analyzer.git
-cd email-analyzer
+# Clone repository
+git clone https://github.com/AlbertoEJ/Email-Analyzer.git
+cd Email-Analyzer
 
-# Instalar dependencias (monorepo con workspaces)
+# Install dependencies (monorepo with workspaces)
 npm install
 
-# Configurar variables de entorno
+# Configure environment variables
 cp backend/.env.example backend/.env
-# Editar backend/.env con tus credenciales (ver seccion siguiente)
+# Edit backend/.env with your credentials (see next section)
 
-# Crear base de datos y aplicar migraciones
+# Create database and run migrations
 npm run db:migrate
 
-# Iniciar en desarrollo (backend + frontend simultaneos)
+# Start in development mode (backend + frontend simultaneously)
 npm run dev
 ```
 
-El backend corre en `http://localhost:3001` y el frontend en `http://localhost:5173`.
+The backend runs on `http://localhost:3001` and the frontend on `http://localhost:5173`.
 
-## Variables de entorno
+## Environment Variables
 
-Crear `backend/.env` con:
+Create `backend/.env` with:
 
 ```env
 # Server
@@ -133,76 +135,76 @@ PORT=3001
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
 
-# Google OAuth 2.0 (REQUERIDO)
-GOOGLE_CLIENT_ID=tu-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=tu-client-secret
+# Google OAuth 2.0 (REQUIRED)
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret
 GOOGLE_REDIRECT_URI=http://localhost:3001/api/auth/callback
 
-# Clave de encriptacion para tokens OAuth (64 caracteres hex)
-# Generar con: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-ENCRYPTION_KEY=tu-clave-de-64-caracteres-hex
+# Encryption key for OAuth tokens (64 hex characters)
+# Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+ENCRYPTION_KEY=your-64-char-hex-key
 
-# Google Safe Browsing API (opcional)
+# Google Safe Browsing API (optional)
 SAFE_BROWSING_API_KEY=
 
-# VirusTotal API (opcional)
+# VirusTotal API (optional)
 VIRUSTOTAL_API_KEY=
 
-# OpenRouter - Analisis de contenido con LLM (opcional)
+# OpenRouter - LLM content analysis (optional)
 OPENROUTER_API_KEY=
 OPENROUTER_MODEL=meta-llama/llama-3.2-3b-instruct:free
 
-# Escaneo automatico (cron, default: cada 6 horas)
+# Scheduled scan cron expression (default: every 6 hours)
 SCAN_CRON=0 */6 * * *
 ```
 
-## Scripts disponibles
+## Available Scripts
 
-| Comando | Descripcion |
+| Command | Description |
 |---------|-------------|
-| `npm run dev` | Inicia backend y frontend en modo desarrollo |
-| `npm run dev:backend` | Solo el backend |
-| `npm run dev:frontend` | Solo el frontend |
-| `npm run build` | Build de produccion |
-| `npm run db:migrate` | Ejecutar migraciones de Prisma |
-| `npm run db:generate` | Regenerar cliente de Prisma |
+| `npm run dev` | Start backend and frontend in development mode |
+| `npm run dev:backend` | Backend only |
+| `npm run dev:frontend` | Frontend only |
+| `npm run build` | Production build |
+| `npm run db:migrate` | Run Prisma migrations |
+| `npm run db:generate` | Regenerate Prisma client |
 
-## Stack tecnologico
+## Tech Stack
 
 ### Backend
-- **Express** - Servidor HTTP
-- **Prisma** - ORM con SQLite
-- **googleapis** - Cliente oficial de Gmail API
-- **OpenAI SDK** - Comunicacion con OpenRouter (LLM)
-- **Zod** - Validacion de variables de entorno
-- **Pino** - Logger estructurado
-- **node-cron** - Escaneos programados
-- **Cheerio** - Parsing de HTML en emails
-- **Helmet** - Headers de seguridad
-- **express-rate-limit** - Proteccion contra abuso
+- **Express** — HTTP server
+- **Prisma** — ORM with SQLite
+- **googleapis** — Official Gmail API client
+- **OpenAI SDK** — OpenRouter (LLM) communication
+- **Zod** — Environment variable validation
+- **Pino** — Structured logger
+- **node-cron** — Scheduled scans
+- **Cheerio** — HTML parsing in emails
+- **Helmet** — Security headers
+- **express-rate-limit** — Abuse protection
 
 ### Frontend
-- **React 19** - UI library
-- **Vite** - Bundler y dev server
-- **Tailwind CSS** - Estilos utility-first
-- **TanStack React Query** - Manejo de estado del servidor
-- **React Router** - Navegacion SPA
-- **Recharts** - Graficos interactivos
-- **Lucide React** - Iconos
-- **Axios** - Cliente HTTP
-- **date-fns** - Formateo de fechas
+- **React 19** — UI library
+- **Vite** — Bundler and dev server
+- **Tailwind CSS** — Utility-first styling
+- **TanStack React Query** — Server state management
+- **React Router** — SPA navigation
+- **Recharts** — Interactive charts
+- **Lucide React** — Icons
+- **Axios** — HTTP client
+- **date-fns** — Date formatting
 
-## Configuracion de Google Cloud
+## Google Cloud Setup
 
-1. Ir a [Google Cloud Console](https://console.cloud.google.com/)
-2. Crear un proyecto nuevo
-3. Habilitar la **Gmail API**
-4. Configurar **OAuth consent screen** (tipo: External)
-   - Agregar scope: `https://www.googleapis.com/auth/gmail.readonly`
-5. Crear **credenciales OAuth 2.0** (tipo: Web Application)
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project
+3. Enable the **Gmail API**
+4. Configure **OAuth consent screen** (type: External)
+   - Add scope: `https://www.googleapis.com/auth/gmail.readonly`
+5. Create **OAuth 2.0 credentials** (type: Web Application)
    - Authorized redirect URI: `http://localhost:3001/api/auth/callback`
-6. Copiar Client ID y Client Secret al `.env`
+6. Copy Client ID and Client Secret to your `.env`
 
-## Licencia
+## License
 
-Este proyecto esta licenciado bajo [AGPL-3.0](LICENSE).
+This project is licensed under [AGPL-3.0](LICENSE).
